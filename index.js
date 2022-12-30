@@ -3,7 +3,7 @@ const express=require('express');
 const cors=require('cors');
 const app=express();
 require('dotenv').config();
-const port=process.env.PORT||5000;
+const port=process.env.PORT|| 4000;
 
 // middlware
 app.use(cors());
@@ -17,12 +17,28 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run(){
 try{
-    const postCollection=client.db('dUser').collection('postCollection');
-
+    const postsCollection=client.db('dUser').collection('postCollection');
+    const postDetailCollection=client.db('dUser').collection('postDetailCollection');
+    app.get('/posts',async(req,res)=>{
+        const query={}
+        const result=await postsCollection.find(query).toArray();
+        res.send(result);
+    })
+    app.get('/top-post',async(req,res)=>{
+        const query={}
+        const result=await postDetailCollection.find(query).limit(3).toArray();
+        res.send(result);
+    })
     app.post('/posts',async(req,res)=>{
         const post=req.body;
-        const reault=await postCollection.insertOne(post);
-        res.send(post);
+        // console.log(post)
+        const result=await postsCollection.insertOne(post);
+        res.send(result);
+    })
+    app.post('/postdetails',async(req,res)=>{
+        const postdtail=req.body;
+        const result=await postDetailCollection.insertOne(postdtail);
+        res.send(result)
     })
 }
 finally{
